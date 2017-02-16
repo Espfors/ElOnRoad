@@ -2,6 +2,8 @@ int sensor[12];
 int posIndex;
 int maxValue;
 
+//Hej hej test
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
