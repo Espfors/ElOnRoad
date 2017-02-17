@@ -19,6 +19,19 @@ void setup() {
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
+  // Setup analogpin A0 to A11 as input, will be used for reading the IR-sensors
+  pinMode(A0,INPUT);
+  pinMode(A1,INPUT);
+  pinMode(A2,INPUT);
+  pinMode(A3,INPUT);
+  pinMode(A4,INPUT);
+  pinMode(A5,INPUT);
+  pinMode(A6,INPUT);
+  pinMode(A7,INPUT);
+  pinMode(A8,INPUT);
+  pinMode(A9,INPUT);
+  pinMode(A10,INPUT);
+  pinMode(A11,INPUT);
   posIndex = 0; // Initiates index
   pos = 36; // Initiates vector index
 }
