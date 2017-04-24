@@ -29,6 +29,29 @@ void setup() {
 }
 
 void loop() {
+  //Super awesome initiation 
+  digitalWrite(6, 1);
+  delay(10);
+  for (int i = 1; i < 7; i++) {
+    digitalWrite(6 + i, 1);
+    digitalWrite(6 - i, 1);
+    delay(10);
+  }
+  for (int i = 6; i > 0; i--) {
+    digitalWrite(6 + i, 0);
+    digitalWrite(6 - i, 0);
+    delay(10);
+  }
+  digitalWrite(6,0);
+  delay(5);
+  digitalWrite(6,1);
+  delay(5);
+  digitalWrite(6,0);
+  delay(5);
+  digitalWrite(6,1);
+  delay(5);
+  digitalWrite(6,0);
+  delay(5);
   // Reads the sensor three times
   while (pos < 30) {
     for (int i = 14; i < 24; i++) {
