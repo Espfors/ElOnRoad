@@ -6,6 +6,7 @@ int oldavg[13];
 int pos; // used for iterating of sensor[52]vector
 int motorPin = 24;
 int ofset = 20; //Interval for max value
+int startMotor = 700;
 void setup() {
   Serial.begin(9600); // Initiates the serial communication for debugging
 
@@ -13,6 +14,9 @@ void setup() {
   for (int i = 0; i < 13; i++) {
     pinMode(i, OUTPUT);
   }
+  // Setup digitalpin 24 and 25 as output, will be used to start motors
+  pinMode(24, OUTPUT);
+  pinMode(25, OUTPUT);
   // Setup analogpin A0 (14) to A9 (23) as input, will be used for reading the IR-sensors
   for (int i = 14; i < 24; i++) {
     pinMode(i, INPUT);
@@ -61,28 +65,35 @@ void loop() {
     Serial.println();
     //Finds max value and index of max value
     for (int i = 0; i < 13; i++) {
-      //If the average value is large than maxvalue+2*ofset,
+      //If the average value is large than maxvalue+ofset,
       //then we reset the values of posIndex,
       //update the maxvalue and enters the led to posIndex
-      if (average[i] > (maxValue+ofset)) {
+      if (average[i] > (maxValue + ofset)) {
         memset(posIndex, 0, sizeof(posIndex)); // Filles posIndex with zeros
-               maxValue = average[i];
-               posIndex[i] = 1;
+        maxValue = average[i];
+        posIndex[i] = 1;
       }
       //If the average is in the interval of +- ofset the corresponding led is added to posIndex
       else if (average[i] > (maxValue - ofset) && average[i] < (maxValue + ofset)) {
         posIndex[i] = 1;
       }
     }
-    //Turns leds on if posIndex[i] = 1
-    for (int i = 0; i < 13; i++) {
-      digitalWrite(i, posIndex[i]);
-      if(posIndex[i]==1){
-        Serial.print(i);
-        Serial.print(" ");
-      }
+    //Turns the motors on to start the cleaning
+    if (maxValue > startMotor) {
+      digitalWrite(24, HIGH);
+      digitalWrite(25, HIGH);
     }
-    Serial.println();
+    //Turns leds on if posIndex[i] = 1
+    else {
+      for (int i = 0; i < 13; i++) {
+        digitalWrite(i, posIndex[i]);
+        if (posIndex[i] == 1) {
+          Serial.print(i);
+          Serial.print(" ");
+        }
+      }
+      Serial.println();
+    }
     pos = ((pos) % 52); // pos modulo 48
     delay(500);
   }
