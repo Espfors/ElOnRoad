@@ -4,7 +4,6 @@ int posIndex[13]; // Vector containing which leds should indicate the road
 int maxValue; // Value of the sensor detecting the road
 int oldavg[13];
 int pos; // used for iterating of sensor[52]vector
-int motorPin = 24;
 int ofset = 20; //Interval for max value
 int startMotor = 700;
 void setup() {
@@ -14,9 +13,9 @@ void setup() {
   for (int i = 0; i < 13; i++) {
     pinMode(i, OUTPUT);
   }
-  // Setup digitalpin 24 and 25 as output, will be used to start motors
+  // Setup digitalpin 24 as output, will be used to start motors
   pinMode(24, OUTPUT);
-  pinMode(25, OUTPUT);
+
   // Setup analogpin A0 (14) to A9 (23) as input, will be used for reading the IR-sensors
   for (int i = 14; i < 24; i++) {
     pinMode(i, INPUT);
@@ -31,27 +30,27 @@ void setup() {
 void loop() {
   //Super awesome initiation 
   digitalWrite(6, 1);
-  delay(10);
+  delay(100);
   for (int i = 1; i < 7; i++) {
     digitalWrite(6 + i, 1);
     digitalWrite(6 - i, 1);
-    delay(10);
+    delay(100);
   }
   for (int i = 6; i > 0; i--) {
     digitalWrite(6 + i, 0);
     digitalWrite(6 - i, 0);
-    delay(10);
+    delay(100);
   }
   digitalWrite(6,0);
-  delay(5);
+  delay(100);
   digitalWrite(6,1);
-  delay(5);
+  delay(100);
   digitalWrite(6,0);
-  delay(5);
+  delay(100);
   digitalWrite(6,1);
-  delay(5);
+  delay(100);
   digitalWrite(6,0);
-  delay(5);
+  delay(100);
   // Reads the sensor three times
   while (pos < 30) {
     for (int i = 14; i < 24; i++) {
@@ -64,7 +63,8 @@ void loop() {
     }
   }
   while (true) { //Loop used for identification
-    maxValue = 0; // resets max value
+    maxValue = 300+ofset; // resets max value
+    memset(posIndex, 0, sizeof(posIndex));
     for (int i = 14; i < 24; i++) {
       sensor[pos] = analogRead(i);
       pos++;
@@ -75,8 +75,8 @@ void loop() {
     }
     for (int j = 0; j < 13; j++) {
       average[j] = ((sensor[j] + sensor[j + 13] + sensor[j + 26] + sensor[j + 39]) >> 2); // calculate average
-      Serial.print(average[j]);
-      Serial.print(" ");
+     // Serial.print(average[j]);
+      //Serial.print(" ");
       //      if (average[j] > oldavg[j] + 100 || average[j] < oldavg[j] - 100) { //Disregard if new average is much larger or smaller then old average, +-100 is a just a guess.
       //        average[j] = oldavg[j];
       //      } else {
@@ -85,7 +85,7 @@ void loop() {
       //      Serial.print("Average : ");
       //      Serial.println(average[j]);
     }
-    Serial.println();
+    //Serial.println();
     //Finds max value and index of max value
     for (int i = 0; i < 13; i++) {
       //If the average value is large than maxvalue+ofset,
@@ -104,21 +104,23 @@ void loop() {
     //Turns the motors on to start the cleaning
     if (maxValue > startMotor) {
       digitalWrite(24, HIGH);
-      digitalWrite(25, HIGH);
+      Serial.print(maxValue);
+      Serial.println(" Motor is running");
     }
     //Turns leds on if posIndex[i] = 1
     else {
       for (int i = 0; i < 13; i++) {
         digitalWrite(i, posIndex[i]);
+
         if (posIndex[i] == 1) {
-          Serial.print(i);
+          Serial.print(average[i]);
           Serial.print(" ");
         }
       }
       Serial.println();
     }
     pos = ((pos) % 52); // pos modulo 48
-    delay(500);
+    delay(50);
   }
 
 }
