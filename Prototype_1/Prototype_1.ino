@@ -2,10 +2,12 @@ int sensor[52]; // Vector containing Sensor value, four values for each sensor
 int average[13]; // Vector containing the averager of the four latest sensor value for each sensor
 int posIndex[13]; // Vector containing which leds should indicate the road
 int maxValue; // Value of the sensor detecting the road
-int oldavg[13];
+int oldavg[13]; // Remove?
 int pos; // used for iterating of sensor[52]vector
 int ofset = 20; //Interval for max value
-int startMotor = 700;
+int startMotor = 700; //Upper accepteable limit for sensor values
+boolean clean = true;
+int limit = 300+ofset; //Lower accepteable limit for sensor values
 void setup() {
   Serial.begin(9600); // Initiates the serial communication for debugging
 
@@ -63,12 +65,14 @@ void loop() {
     }
   }
   while (true) { //Loop used for identification
-    maxValue = 300+ofset; // resets max value
-    memset(posIndex, 0, sizeof(posIndex));
+    maxValue = limit; // Resets max value to lower limit
+    memset(posIndex, 0, sizeof(posIndex)); // Reset led display
+    //Reading sensor 0 - 10
     for (int i = 14; i < 24; i++) {
       sensor[pos] = analogRead(i);
       pos++;
     }
+    //Reading sensor 11 - 13
     for (int i = 33; i < 36; i++) {
       sensor[pos] = analogRead(i);
       pos++;
@@ -86,6 +90,7 @@ void loop() {
       //      Serial.println(average[j]);
     }
     //Serial.println();
+    
     //Finds max value and index of max value
     for (int i = 0; i < 13; i++) {
       //If the average value is large than maxvalue+ofset,
@@ -101,25 +106,35 @@ void loop() {
         posIndex[i] = 1;
       }
     }
-    //Turns the motors on to start the cleaning
-    if (maxValue > startMotor) {
+    //Turns the motors on to start the cleaning system
+    if (maxValue > startMotor && clean) {
       digitalWrite(24, HIGH);
-      Serial.print(maxValue);
-      Serial.println(" Motor is running");
+      digitalWrite(0, 1);
+      digitalWrite(1,1);
+      for (int i = 2; i < 11; i++){
+        digitalWrite(i, 0);
+      }
+      digitalWrite(11,1);
+      digitalWrite(12, 1);
+      clean = false;
+//      Serial.print(maxValue);
+//      Serial.println(" Motor is running");
     }
-    //Turns leds on if posIndex[i] = 1
-    else {
+    //Using led display to show Elonroad position
+    else if (maxValue < startMotor) {
+      digitalWrite(24, LOW);
+      clean = true;
       for (int i = 0; i < 13; i++) {
         digitalWrite(i, posIndex[i]);
 
-        if (posIndex[i] == 1) {
-          Serial.print(average[i]);
-          Serial.print(" ");
-        }
+//        if (posIndex[i] == 1) {
+//          Serial.print(average[i]);
+//          Serial.print(" ");
+//        }
       }
-      Serial.println();
+//      Serial.println();
     }
-    pos = ((pos) % 52); // pos modulo 48
+    pos = ((pos) % 52); // pos modulo 52
     delay(50);
   }
 
